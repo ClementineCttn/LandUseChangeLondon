@@ -53,3 +53,14 @@ leaflet(data = nlud_SP_LL) %>% addProviderTiles("CartoDB.Positron") %>%
 
 
 
+########## transition 
+# transitions_m = table(nlud_SP_LL@data$PREVIOUS_LAND_USE, nlud_SP_LL@data$PROPOSED_USE)
+# transitions<-melt(transitions_m)
+# names(transitions)=c("previous","current","Fq")
+# head(transitions, 4)
+# 
+# transitions = transitions[transitions$Fq >0, ]
+
+
+
+
