@@ -12,9 +12,9 @@ library(leaflet)
 
 shinyUI(
   fluidPage(
-    titlePanel(h2(
+    headerPanel(
       "Land Use Change in London 2007-2010"
-    )),
+    ),
       column(6,  selectInput(
         "year",
         "Year",
