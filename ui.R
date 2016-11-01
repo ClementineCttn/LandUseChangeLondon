@@ -15,18 +15,18 @@ shinyUI(
     titlePanel(h2(
       "Land Use Change in London 2007-2010"
     )),
-        selectInput(
+      column(6,  selectInput(
         "year",
         "Year",
         choices = c(2007, 2010),
         selected = 2007
-    ),
-    selectInput(
+    )),
+    column(6,   selectInput(
       "variable",
       "Colour Map by...",
       choices = c("PREVIOUS_LAND_USE", "CURRENT_LAND_USE", "PROPOSED_USE"),
       selected = "PREVIOUS_LAND_USE"
-    ),
+    )),
     leafletOutput('map'),
     selectInput(
       "table",

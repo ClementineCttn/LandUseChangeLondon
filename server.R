@@ -21,16 +21,11 @@ require(maptools)
 
 ukgrid = "+init=epsg:27700"
 latlong = "+init=epsg:4326"
-# londonBoroughs = c("Barking and Dagenham", "Barnet", "Bexley", "Brent", "Bromley", "Camden", "City of London", 
-#                    "Croydon", "Ealing", "Enfield", "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey",
-#                    "Harrow", "Havering", "Hillingdon", "Hounslow", "Islington", "Kensington and Chelsea", "Kingston upon Thames",
-#                    "Lambeth", "Lewisham", "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", "Sutton", 
-#                    "Tower Hamlets", "Waltham Forest", "Wandsworth", "Westminster")
 
-LandUse2007 = read.csv("NLUD_ABCD_2007_LDN.csv", sep=",", dec=".")
+LandUse2007 = read.csv("data/NLUD_ABCD_2007_LDN.csv", sep=",", dec=".")
 LandUse2007$PREVIOUS_USE = LandUse2007$PREVIOUS_LAND_USE
 
-LandUse2010 = read.csv("NLUD_ABCD_2010.csv", sep=",", dec=".", stringsAsFactors = F)
+LandUse2010 = read.csv("data/NLUD_ABCD_2010.csv", sep=",", dec=".", stringsAsFactors = F)
 LandUse2010 = LandUse2010[LandUse2010$REGION == "London", ]
 LandUse2010$PREVIOUS_LAND_USE = LandUse2010$PREVIOUS_USE
 LandUse2010$CURRENT_LAND_USE = LandUse2010$CURRENT_USE
@@ -118,6 +113,7 @@ shinyServer(function(input, output, session) {
     nlud_table = nlud_year()
     selected_table = input$table
     t = Transition(nlud = nlud_table, table = selected_table)
+    t = cbind(rownames(t), t)
     return(t)
   })
   
