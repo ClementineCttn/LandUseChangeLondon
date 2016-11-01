@@ -22,34 +22,35 @@ setwd("/Users/clementinecottineau/Documents/LandUseChangeLondon/data/")
 
 ukgrid = "+init=epsg:27700"
 latlong = "+init=epsg:4326"
-mappingVariables = c("PREVIOUS_USE", "CURRENT_USE", "PROPOSED_USE")
-years = c(2007, 2010, 2011)
+mappingVariables = c("PREVIOUS_LAND_USE", "CURRENT_LAND_USE", "PROPOSED_USE")
+years = c(2007, 2010)
 londonBoroughs = c("Barking and Dagenham", "Barnet", "Bexley", "Brent", "Bromley", "Camden", "City of London", 
                    "Croydon", "Ealing", "Enfield", "Greenwich", "Hackney", "Hammersmith and Fulham", "Haringey",
                    "Harrow", "Havering", "Hillingdon", "Hounslow", "Islington", "Kensington and Chelsea", "Kingston upon Thames",
                    "Lambeth", "Lewisham", "Merton", "Newham", "Redbridge", "Richmond upon Thames", "Southwark", "Sutton", 
                    "Tower Hamlets", "Waltham Forest", "Wandsworth", "Westminster")
-
-mapLandUseTransition = function(year, WhatToMap){
+mapLandUseTransition = function(year, WhatToMap, FromUse = "PREVIOUS_USE" , ToUse = "PROPOSED_USE"){
   # import file
   if(year == 2007) {
     nlud = read.csv("NLUD_ABCD_2007_LDN.csv", sep=",", dec=".")
-    nlud$PREVIOUS_USE = nlud_SP_LL$PREVIOUS_LAND_USE
+    nlud$PREVIOUS_USE = nlud$PREVIOUS_LAND_USE
   } else {
     nlud = read.csv(paste0("NLUD_ABCD_", year, ".csv"), sep=",", dec=".", stringsAsFactors = F)
-     if(year %in% c(2011, 2012)) {
-      nlud$EASTING = as.numeric(nlud$Easting)
-      nlud$NORTHING = as.numeric(nlud$Northing)
-      nlud$PREVIOUS_USE = nlud$Previous.use
-      nlud$CURRENT_USE = nlud$Current.use
-      nlud$PROPOSED_USE = nlud$Proposed.use
-      nlud$AREA = as.numeric(nlud$Area)
-      nlud$PAO_DESCRIPTION = nlud$PAO.Description
-
-            nlud = nlud[nlud$LA %in% londonBoroughs, ]
-     } else {
+     # if(year %in% c(2011, 2012)) {
+     #  nlud$EASTING = as.numeric(nlud$Easting)
+     #  nlud$NORTHING = as.numeric(nlud$Northing)
+     #  nlud$PREVIOUS_LAND_USE = nlud$Previous.use
+     #  nlud$CURRENT_LAND_USE = nlud$Current.use
+     #  nlud$PROPOSED_USE = nlud$Proposed.use
+     #  nlud$AREA = as.numeric(nlud$Area)
+     #  nlud$PAO_DESCRIPTION = nlud$PAO.Description
+     # 
+     # nlud = nlud[nlud$LA %in% londonBoroughs, ]
+     # } else {
        nlud = nlud[nlud$REGION == "London", ]
-     }
+       nlud$PREVIOUS_LAND_USE = nlud$PREVIOUS_USE
+       nlud$CURRENT_LAND_USE = nlud$CURRENT_USE
+ #        }
     
   }
   
@@ -65,6 +66,29 @@ mapLandUseTransition = function(year, WhatToMap){
   nlud_SP_LL@data$lat = nlud_SP_LL@coords[,2]
   
   # Interactive map
+  ########## transition 
+  transitions_m = table(nlud_SP_LL@data[,FromUse], nlud_SP_LL@data[,ToUse])
+  transitions_m = transitions_m[rownames(transitions_m)!="", colnames(transitions_m)!=""]
+ # write.csv(transitions_m, paste0("transition_", year, "_Matrix.csv"))
+  print("N")
+  print(transitions_m)
+  pctFrom = transitions_m
+  for (i in 1:dim(transitions_m)[1]){
+    pctFrom[i,] = round(transitions_m[i,] * 100/ rowSums(transitions_m)[i],1)
+  }
+  print("Line percentages")
+  print(pctFrom)
+  pctTo = transitions_m
+  for (j in 1:dim(transitions_m)[2]){
+    pctTo[,j] = round(transitions_m[,j] * 100/ colSums(transitions_m)[j],1)
+  }
+  print("Column percentages")
+  print(pctTo)
+  transitions<-melt(transitions_m)
+  names(transitions)=c("From","To","Fq")
+  transitions = transitions[transitions$Fq >0, ]
+  #write.csv(transitions, paste0("transition_", year, "_Long.csv"))
+  
   nlud_SP_LL@data$varToMap = nlud_SP_LL@data[, WhatToMap]
   vals = unique(nlud_SP_LL@data$varToMap)
   n = length(vals)
@@ -72,23 +96,13 @@ mapLandUseTransition = function(year, WhatToMap){
   nlud_SP_LL@data = data.frame(nlud_SP_LL@data, lookup[match(nlud_SP_LL@data$varToMap, lookup$plu),])
   factpal <- colorFactor(rainbow(n), nlud_SP_LL@data$plu_id)
   vLegendBox <- as.character(vals)
-  summary(nlud_SP_LL@data)
   leaflet(data = nlud_SP_LL) %>% addProviderTiles("CartoDB.Positron") %>%
     clearShapes() %>% 
     setView(lng=-0.1855676, lat=51.5371635, zoom=10) %>% 
     addCircleMarkers(~long, ~lat, radius = ~AREA, col=~factpal(plu_id) , 
-                     popup = ~paste(PAO_DESCRIPTION, " | Previously: ",PREVIOUS_USE,
-                                    " | In ", year, ": ",CURRENT_USE, " | Proposed: ",PROPOSED_USE, sep=" "))
+                     popup = ~paste(PAO_DESCRIPTION, " | Previously: ",PREVIOUS_LAND_USE,
+                                    " | In ", year, ": ",CURRENT_LAND_USE, " | Proposed: ",PROPOSED_USE, sep=" "))
 }
-mapLandUseTransition(2007, mappingVariables[1])
-########## transition 
-# transitions_m = table(nlud_SP_LL@data$PREVIOUS_LAND_USE, nlud_SP_LL@data$PROPOSED_USE)
-# transitions<-melt(transitions_m)
-# names(transitions)=c("previous","current","Fq")
-# head(transitions, 4)
-# 
-# transitions = transitions[transitions$Fq >0, ]
 
-
-
+mapLandUseTransition(years[2], mappingVariables[2])
 
