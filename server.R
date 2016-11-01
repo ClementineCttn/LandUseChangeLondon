@@ -108,7 +108,7 @@ shinyServer(function(input, output, session) {
   
   output$map = renderLeaflet({
     nlud_table = nlud_year()
-    selected_year = input$date
+    selected_year = input$year
     selected_variable = input$variable
     mapLandUse(nlud = nlud_table, year = selected_year, WhatToMap = selected_variable)
   })
