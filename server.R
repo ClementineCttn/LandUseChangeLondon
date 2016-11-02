@@ -115,7 +115,7 @@ shinyServer(function(input, output, session) {
     t = Transition(nlud = nlud_table, table = selected_table)
     t = cbind(rownames(t), t)
     return(t)
-  })
+  }, options = list(paging = FALSE, searching = FALSE))
   
   
   

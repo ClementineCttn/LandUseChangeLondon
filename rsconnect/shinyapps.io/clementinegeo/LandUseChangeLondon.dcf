@@ -2,8 +2,8 @@ name: LandUseChangeLondon
 account: clementinegeo
 server: shinyapps.io
 appId: 135115
-bundleId: 602577
+bundleId: 602599
 url: https://clementinegeo.shinyapps.io/LandUseChangeLondon/
-when: 1478018254.90445
+when: 1478018981.73376
 asMultiple: FALSE
 asStatic: FALSE

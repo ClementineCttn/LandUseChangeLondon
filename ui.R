@@ -36,7 +36,13 @@ shinyUI(
                   "Percentage in columns" = "ColPct"),
       selected = "N"
     ),
-    dataTableOutput('transitions')
+    h3("In column: previous land  use. In line: proposed use"),
+    dataTableOutput('transitions'),
+    HTML(
+      'For More:
+      <a href=https://github.com/ClementineCttn/LandUseChangeLondon>https://github.com/ClementineCttn/LandUseChangeLondon</a>'
+    )
+    
   )
   )
     
